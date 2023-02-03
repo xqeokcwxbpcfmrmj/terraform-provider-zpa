@@ -86,6 +86,7 @@ func Provider() *schema.Provider {
 			"zpa_cloud_connector_group":              dataSourceCloudConnectorGroup(),
 			"zpa_idp_controller":                     dataSourceIdpController(),
 			"zpa_machine_group":                      dataSourceMachineGroup(),
+			"zpa_microtenants":                       dataSourceMicroTenants(),
 			"zpa_provisioning_key":                   dataSourceProvisioningKey(),
 			"zpa_policy_type":                        dataSourcePolicyType(),
 			"zpa_posture_profile":                    dataSourcePostureProfile(),

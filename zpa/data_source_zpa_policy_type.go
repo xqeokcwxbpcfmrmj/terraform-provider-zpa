@@ -53,7 +53,7 @@ func dataSourcePolicyType() *schema.Resource {
 					"TIMEOUT_POLICY", "REAUTH_POLICY",
 					"CLIENT_FORWARDING_POLICY", "BYPASS_POLICY",
 					"ISOLATION_POLICY", "INSPECTION_POLICY",
-					"SIEM_POLICY",
+					"SIEM_POLICY", "CREDENTIAL_POLICY", "CAPABILITIES_POLICY",
 				}, false),
 			},
 			"rules": {
@@ -137,11 +137,23 @@ func dataSourcePolicyType() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"zpn_cbi_profile_id": {
+						"microtenant_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"microtenant_name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"zpn_isolation_profile_id": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"zpn_inspection_profile_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"zpn_inspection_profile_name": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
@@ -171,6 +183,10 @@ func dataSourcePolicyType() *schema.Resource {
 										Computed: true,
 									},
 									"operator": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"microtenant_id": {
 										Type:     schema.TypeString,
 										Computed: true,
 									},
@@ -219,6 +235,10 @@ func dataSourcePolicyType() *schema.Resource {
 													Type:     schema.TypeString,
 													Computed: true,
 												},
+												"microtenant_id": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
 											},
 										},
 									},
@@ -249,12 +269,14 @@ func dataSourcePolicyTypeRead(d *schema.ResourceData, m interface{}) error {
 
 	log.Printf("[INFO] Getting data for Policy Type:\n%+v\n", resp)
 	d.SetId(resp.ID)
-	_ = d.Set("creation_time", resp.CreationTime)
+	_ = d.Set("name", resp.Name)
 	_ = d.Set("description", resp.Description)
 	_ = d.Set("enabled", resp.Enabled)
+	_ = d.Set("creation_time", resp.CreationTime)
 	_ = d.Set("modified_by", resp.ModifiedBy)
 	_ = d.Set("modified_time", resp.ModifiedTime)
-	_ = d.Set("name", resp.Name)
+	_ = d.Set("microtenant_id", resp.MicrotenantID)
+	_ = d.Set("microtenant_name", resp.MicrotenantName)
 	_ = d.Set("sorted", resp.Sorted)
 	_ = d.Set("policy_type", resp.PolicyType)
 
@@ -269,26 +291,29 @@ func flattenPolicySetRules(policySetRules *policysetcontroller.PolicySet) []inte
 	ruleItems := make([]interface{}, len(policySetRules.Rules))
 	for i, ruleItem := range policySetRules.Rules {
 		ruleItems[i] = map[string]interface{}{
-			"action":                    ruleItem.Action,
-			"action_id":                 ruleItem.ActionID,
-			"creation_time":             ruleItem.CreationTime,
-			"custom_msg":                ruleItem.CustomMsg,
-			"description":               ruleItem.Description,
-			"id":                        ruleItem.ID,
-			"isolation_default_rule":    ruleItem.IsolationDefaultRule,
-			"modified_by":               ruleItem.ModifiedBy,
-			"modified_time":             ruleItem.ModifiedTime,
-			"operator":                  ruleItem.Operator,
-			"policy_set_id":             ruleItem.PolicySetID,
-			"policy_type":               ruleItem.PolicyType,
-			"priority":                  ruleItem.Priority,
-			"reauth_default_rule":       ruleItem.ReauthDefaultRule,
-			"reauth_idle_timeout":       ruleItem.ReauthIdleTimeout,
-			"reauth_timeout":            ruleItem.ReauthTimeout,
-			"rule_order":                ruleItem.RuleOrder,
-			"zpn_cbi_profile_id":        ruleItem.ZpnCbiProfileID,
-			"zpn_inspection_profile_id": ruleItem.ZpnInspectionProfileID,
-			"conditions":                flattenRuleConditions(ruleItem),
+			"action":                      ruleItem.Action,
+			"action_id":                   ruleItem.ActionID,
+			"creation_time":               ruleItem.CreationTime,
+			"custom_msg":                  ruleItem.CustomMsg,
+			"description":                 ruleItem.Description,
+			"id":                          ruleItem.ID,
+			"isolation_default_rule":      ruleItem.IsolationDefaultRule,
+			"modified_by":                 ruleItem.ModifiedBy,
+			"modified_time":               ruleItem.ModifiedTime,
+			"operator":                    ruleItem.Operator,
+			"policy_set_id":               ruleItem.PolicySetID,
+			"policy_type":                 ruleItem.PolicyType,
+			"priority":                    ruleItem.Priority,
+			"reauth_default_rule":         ruleItem.ReauthDefaultRule,
+			"reauth_idle_timeout":         ruleItem.ReauthIdleTimeout,
+			"reauth_timeout":              ruleItem.ReauthTimeout,
+			"rule_order":                  ruleItem.RuleOrder,
+			"microtenant_id":              ruleItem.MicrotenantID,
+			"microtenant_name":            ruleItem.MicrotenantName,
+			"zpn_isolation_profile_id":    ruleItem.ZpnIsolationProfileID,
+			"zpn_inspection_profile_id":   ruleItem.ZpnInspectionProfileID,
+			"zpn_inspection_profile_name": ruleItem.ZpnInspectionProfileName,
+			"conditions":                  flattenRuleConditions(ruleItem),
 		}
 	}
 
